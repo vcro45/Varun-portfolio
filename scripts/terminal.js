@@ -1,5 +1,5 @@
 // Terminal Theme v2 — Matrix Background + GSAP 3D Scroll Animations + Boot Sequence + Sound
-import { experience, projects, techStack, quickFacts, heroStats, contactLinks } from '../data/content.js';
+import { experience, projects, techStack, quickFacts, heroStats, contactLinks } from './data/content.js';
 
 const qs = (selector) => document.querySelector(selector);
 const qsa = (selector) => Array.from(document.querySelectorAll(selector));
