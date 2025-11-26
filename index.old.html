@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>varun@portfolio:~$</title>
+    <meta name="description" content="Varun — CS student building AI-powered apps, secure systems, and thoughtful interfaces." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./src/styles/terminal.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <nav class="nav">
+        <div class="nav-logo">varun</div>
+        <div class="nav-links">
+          <a href="#work">experience</a>
+          <a href="#projects">projects</a>
+          <a href="#stack">stack</a>
+          <a href="#about">about</a>
+          <a href="#contact">contact</a>
+        </div>
+      </nav>
+
+      <section class="hero" id="top">
+        <div class="hero-content">
+          <p class="prompt">whoami</p>
+          <h1 class="headline">
+            I'm Varun.<span class="cursor"></span>
+          </h1>
+          <p class="lede">
+            CS undergrad building <em>AI-powered apps</em>, secure systems, and interfaces that just work.
+            Currently exploring cybersecurity + thoughtful design.
+          </p>
+          <div class="hero-cta">
+            <a class="button primary" href="#projects">view_projects</a>
+            <a class="button" href="mailto:hello@varun.dev">send_message</a>
+          </div>
+          <div class="hero-meta" id="hero-stats"></div>
+        </div>
+      </section>
+
+      <section class="section" id="work">
+        <div class="section-heading">
+          <h2 class="section-title">experience</h2>
+        </div>
+        <div class="timeline" id="experience-timeline"></div>
+      </section>
+
+      <section class="section" id="projects">
+        <div class="section-heading">
+          <h2 class="section-title">projects</h2>
+        </div>
+        <div class="projects-grid" id="projects-grid"></div>
+      </section>
+
+      <section class="section" id="stack">
+        <div class="section-heading">
+          <h2 class="section-title">tech_stack</h2>
+        </div>
+        <div class="stack-pillar-grid" id="stack-columns"></div>
+      </section>
+
+      <section class="section about" id="about">
+        <div class="section-heading">
+          <h2 class="section-title">about</h2>
+        </div>
+        <div class="about-layout">
+          <article class="panel">
+            <h3>readme.md</h3>
+            <p class="body-text">
+              CS student at UC Davis turning ideas into polished products — from AI chatbots across three platforms
+              to EdTech tools helping students navigate admissions.
+            </p>
+            <p class="body-text">
+              I thrive where I can sketch, design, build, and ship quickly. Currently building toward 
+              Cybersecurity + AI, creating privacy-first products.
+            </p>
+          </article>
+          <article class="panel">
+            <h3>status.log</h3>
+            <ul id="quick-facts" class="fact-list"></ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="contact">
+        <div class="contact-card">
+          <div>
+            <p class="eyebrow">// contact</p>
+            <h2>Let's build something.</h2>
+            <p class="body-text">Open to opportunities and interesting conversations.</p>
+          </div>
+          <div class="contact-links" id="contact-links"></div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <p>© <span id="year"></span> varun — all systems operational</p>
+        <div class="footer-links">
+          <a href="#projects">projects</a>
+          <a href="mailto:hello@varun.dev">email</a>
+        </div>
+      </footer>
+    </main>
+
+    <script type="module" src="./src/scripts/terminal.js"></script>
+    <script>
+      document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+  </body>
+</html>
