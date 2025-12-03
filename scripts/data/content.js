@@ -73,7 +73,7 @@ export const heroStats = [
 ];
 
 export const contactLinks = [
-  { label: 'Email', href: 'mailto:hello@varun.dev' },
-  { label: 'GitHub', href: 'https://github.com' },
-  { label: 'LinkedIn', href: 'https://www.linkedin.com' },
+  { label: 'Email', href: 'mailto:cvarun4545@gmail.com' },
+  { label: 'GitHub', href: 'https://github.com/vcro45' },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/varunc4545' },
 ];
