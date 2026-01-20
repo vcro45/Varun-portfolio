@@ -1095,6 +1095,69 @@ p {
   border-color: var(--green-dim);
 }
 
+/* Glowing Pulse Animation for Resume Button */
+.button.glow-pulse {
+  position: relative;
+  animation: glowPulse 2s ease-in-out infinite;
+  box-shadow: 
+    0 0 10px var(--green-glow),
+    0 0 20px rgba(0, 255, 65, 0.3),
+    0 0 30px rgba(0, 255, 65, 0.2);
+}
+
+.button.glow-pulse::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  background: linear-gradient(45deg, transparent, var(--green), transparent);
+  opacity: 0;
+  animation: borderGlow 3s linear infinite;
+  z-index: -1;
+  filter: blur(8px);
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 10px var(--green-glow),
+      0 0 20px rgba(0, 255, 65, 0.3),
+      0 0 30px rgba(0, 255, 65, 0.2);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 
+      0 0 20px var(--green-glow),
+      0 0 40px rgba(0, 255, 65, 0.5),
+      0 0 60px rgba(0, 255, 65, 0.3),
+      0 0 80px rgba(0, 255, 65, 0.1);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes borderGlow {
+  0% {
+    opacity: 0;
+    transform: rotate(0deg);
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(360deg);
+  }
+}
+
+.button.glow-pulse:hover {
+  animation: none;
+  box-shadow: 
+    0 0 30px var(--green-glow),
+    0 0 60px rgba(0, 255, 65, 0.5),
+    0 0 90px rgba(0, 255, 65, 0.3);
+  transform: translateY(-3px) scale(1.05);
+}
+
 /* ===================== STATS ===================== */
 .hero-meta {
   display: flex;

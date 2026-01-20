@@ -378,15 +378,42 @@ const initScrollProgress = () => {
   
   let lastScroll = 0;
   let ticking = false;
+  let currentSection = 'init_varun.exe';
   
-  const filenames = [
-    'init_varun.exe',
-    'experience.log',
-    'projects.bin',
-    'stack.json',
-    'about.md',
-    'contact.sh'
-  ];
+  // Map section IDs to filenames
+  const sectionFilenames = {
+    'top': 'init_varun.exe',
+    'work': 'experience.log',
+    'projects': 'projects.bin',
+    'stack': 'stack.json',
+    'about': 'about.md',
+    'contact': 'contact.sh'
+  };
+  
+  // Use IntersectionObserver for reliable section detection
+  const observerOptions = {
+    root: null,
+    rootMargin: '-40% 0px -55% 0px', // Trigger when section is in middle 5% of viewport
+    threshold: 0
+  };
+  
+  const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const sectionId = entry.target.id;
+        if (sectionFilenames[sectionId]) {
+          currentSection = sectionFilenames[sectionId];
+          if (filenameEl) filenameEl.textContent = currentSection;
+        }
+      }
+    });
+  }, observerOptions);
+  
+  // Observe all sections
+  Object.keys(sectionFilenames).forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) sectionObserver.observe(el);
+  });
   
   const updateProgress = () => {
     const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
@@ -394,10 +421,6 @@ const initScrollProgress = () => {
     
     progressFill.style.width = `${scrollPercent}%`;
     percentText.textContent = `${scrollPercent}%`;
-    
-    // Update filename based on scroll position
-    const sectionIndex = Math.min(Math.floor(scrollPercent / 17), filenames.length - 1);
-    if (filenameEl) filenameEl.textContent = filenames[sectionIndex];
     
     // Play subtle scroll sound occasionally
     if (Math.abs(scrollPercent - lastScroll) > 3) {
