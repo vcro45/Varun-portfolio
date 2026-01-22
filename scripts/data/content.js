@@ -101,7 +101,7 @@ export const heroStats = [
 ];
 
 export const contactLinks = [
-  { label: 'Resume', href: './assets/vcresm.pdf' },
+  { label: 'Resume', href: './assets/VCRSME.pdf' },
   { label: 'LinkedIn', href: 'https://www.linkedin.com/in/varunc4545' },
   { label: 'Email', href: 'mailto:cvarun4545@gmail.com' },
 ];
