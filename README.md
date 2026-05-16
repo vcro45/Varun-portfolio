@@ -19,3 +19,5 @@ Tech Stack
 	•	Custom CSS for layout, theming, and animations
 	•	IntersectionObserver for scroll-based animations
 	•	LocalStorage for theme preference persistence
+
+	
