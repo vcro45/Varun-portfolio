@@ -73,8 +73,8 @@ export const projects = [
   {
     name: 'Portfolio Website',
     blurb:
-      'Creative Engineering<br>A cinematic, terminal-themed developer experience. Crafted with Next.js and custom GSAP motion design to deliver fluid, high-performance animations.',
-    highlight: 'Next.js · GSAP · Tailwind CSS · Framer Motion',
+      'Creative Engineering<br>A cinematic, terminal-themed developer experience. Hand-built with zero frameworks — vanilla JS, a canvas matrix-rain background, a Web Audio ambient engine, and custom GSAP motion design.',
+    highlight: 'HTML · CSS · Vanilla JS · GSAP · Web Audio API',
   },
 ];
 export const techStack = {

@@ -1,48 +1,80 @@
-# Portfolio Site Plan
+# Site Design & Architecture Reference
 
-## Narrative & Tone
-- **Identity**: Computer science undergrad with a builder mindset, curious about systems and delightful UX.
-- **Voice**: Confident but warm, mentor-friendly, curious; copy should be short, use action verbs.
-- **Moodboard cues**: Modernist typography (e.g., Space Grotesk, Inter), thin neon accent (#7AF0FF) on charcoal/ivory.
-- **Layout vibe**: Dynamic minimalism — lots of breathing room, staggered grids, micro-interactions.
+> This documents the site **as built**. The original draft of this file
+> described an early, abandoned concept (light/charcoal theme, Framer Motion,
+> Next.js); the project shipped a different direction and this file now reflects
+> reality.
 
-## Page Structure
-1. **Hero / Intro**
-   - Animated background gradient or particle field that subtly reacts to pointer.
-   - Headline: “Hi, I’m Varun — CS undergrad crafting human-centered systems”.
-   - Subtext describing focus areas (system design, ML, creative tools).
-   - CTA buttons: `View Resume`, `Contact`.
-2. **Experience Timeline**
-   - Split layout: left rail with dates, right rail cards with role, org, blurb, stack tags.
-   - Scroll-triggered reveal (fade + translate).
-3. **Projects Gallery**
-   - Masonry or two-column grid with hover tilt/scale.
-   - Include case-study modal or “open details” micro-page.
-4. **Technical Stack**
-   - Grouped badges: Languages, Frameworks, Tools.
-   - Animated meter bars or orbiting icons showing depth.
-5. **Skills & Impact**
-   - Focus on outcomes (performance boosts, users reached).
-6. **About + Values**
-   - Personal story, fun facts, values (craft, curiosity, community).
-7. **Contact / Footer**
-   - Minimal contact card with email, socials, and subtle marquee / ticker with achievements.
+## Concept
 
-## Animation/Interaction Ideas
-- Hero gradient shifts with pointer velocity using CSS variables + motion blur.
-- Section headers slide in with staggered spring animations (Framer Motion).
-- Use intersection observers for timeline reveals.
-- Hover states with 3D perspective and glassmorphism overlays on project cards.
-- Theme toggle: default dark, optional light mode using CSS custom properties.
+A terminal / "hacker rig" persona. The whole page is framed as a machine the
+visitor boots into and explores. Copy uses shell-command framing
+(`$ whoami`, `cat experience.log`, `ls ~/projects`) to carry the theme without
+needing a literal interactive terminal.
 
-## Content Checklist
-- Experiences: internships, research, leadership roles; include quantifiable wins.
-- Projects: at least 3 flagship (deep case) + 3 quick hits.
-- Skills: bucketed list with emphasis on CS foundations + design tooling.
-- Testimonials or quotes (professors, teammates) if available.
+## Visual Language
 
-## Figma Tips
-- Create an 8px baseline grid, use 12-column layout at 1440px.
-- Export reusable components: cards, buttons, badges, timeline nodes.
-- Prototype micro-interactions to handoff easing curves (use 450ms cubic-bezier for hero, 220ms for UI).
+- **Palette**: near-black background (`#050505`) with a single phosphor-green
+  accent family (`--green` `#00ff41` → `--green-bright` `#39ff14`). No second
+  hue. All variables live in `:root` in `styles/terminal.css`.
+- **Type**: JetBrains Mono everywhere — monospace is the whole identity.
+- **Surfaces**: liquid-glass cards — translucent dark green gradients,
+  `backdrop-filter: blur()`, subtle inner highlight, green border that brightens
+  on hover.
+- **Depth**: cards tilt in 3D on pointer move; sections reveal with GSAP on
+  scroll; glow orbs parallax behind the content.
+- **Dark only.** No theme toggle. `color-scheme: dark` is fixed.
 
+## Page Flow
+
+1. **Boot screen** — ASCII logo, fake kernel log, progress bar. Auto-completes
+   in ~3s; any key or click skips it.
+2. **Hero** — `$ whoami`, name, typewriter tagline, lede, resume/contact CTAs,
+   stat row, and a glitch-effect profile image.
+3. **Experience** — `cat experience.log`; glass timeline cards from data.
+4. **Projects** — `ls ~/projects`; grid of cards with a hover decrypt/scramble
+   text effect.
+5. **Stack** — `cat tech_stack.json`; grouped skill columns.
+6. **About** — `cat readme.md`; bio panel + `status.log` quick-facts panel.
+7. **Contact** — `./contact --help`; links card.
+8. **Footer** — year + "all systems operational".
+
+## Interaction Inventory
+
+- Boot sequence (skippable)
+- Canvas matrix rain background
+- Generative ambient audio engine + click/hover SFX, mute persisted to
+  `localStorage` (`#sound-toggle`)
+- GSAP ScrollTrigger reveals + orb parallax
+- 3D pointer tilt on cards
+- Magnetic buttons
+- Custom cursor (fine-pointer devices only)
+- Scroll-progress pill that renames itself per section
+  (`init_varun.exe` → `experience.log` → …)
+- IntersectionObserver active-nav highlighting
+- Hover text-scramble ("decrypt") on project cards
+- Hero image glitch burst on hover
+
+## Architecture Notes
+
+- **Content is data-driven.** `scripts/data/content.js` is the single source of
+  truth; `scripts/terminal.js` renders every section from it into empty
+  containers in `index.html`. Add/edit content there only.
+- **No build.** Static files; GSAP loaded via CDN. `vercel.json` sets
+  `framework: null`.
+- **`/resume`** is a tiny HTML redirect that fires a `resume_download`
+  analytics event before sending the user to `assets/SWE.pdf`.
+
+## Accessibility / Performance
+
+- `prefers-reduced-motion` kills animations and hides the heaviest decorative
+  layers (scanlines, grid, orbs).
+- Custom cursor and tilt are gated to fine pointers.
+- Matrix rain runs on a throttled interval; keep an eye on it if adding more
+  canvas work.
+
+## Possible Next Steps
+
+- Project case-study detail pages / modals.
+- Lazy-init or pause the matrix canvas when offscreen / tab hidden.
+- Keyboard navigation pass for the nav pill and skip-to-content.

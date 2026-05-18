@@ -1,23 +1,53 @@
-Personal Portfolio Website
+# Personal Portfolio Website
 
-This repository contains the source code for my personal portfolio website, built to showcase my background as a Computer Science undergraduate, along with selected projects, experience, and technical skills.
+A single-page portfolio for Varun — a CS undergrad building AI-powered apps and
+secure systems. The site uses a hacker / matrix-terminal aesthetic: a fake boot
+sequence, matrix rain, ambient generative audio, and scroll-driven motion.
 
-The site is designed to be lightweight, fast, and visually engaging, with a focus on clear presentation and smooth interactions rather than heavy frameworks. It serves as a central place to explore my work, learn about my interests, and access links such as my resume, GitHub, and LinkedIn.
+It is fully static — no build step, no framework, no dependencies to install.
+Open `index.html` and it runs.
 
-⸻
+## Tech Stack
 
-Overview
-	•	Highlights academic background, experience, and projects
-	•	Emphasizes clean UI, subtle animations, and responsiveness
-	•	Built with performance and simplicity in mind
-	•	Fully static and easy to deploy on any hosting platform
+- **HTML, CSS, vanilla JavaScript (ES modules)** — no framework
+- **GSAP + ScrollTrigger** — scroll-triggered reveals and parallax (CDN)
+- **Canvas 2D** — matrix-rain background
+- **Web Audio API** — generative ambient drone + UI click/hover SFX
+- **IntersectionObserver** — active-nav highlighting and section tracking
+- **localStorage** — persists the sound on/off preference
+- **Vercel** — hosting, Web Analytics, and Speed Insights
 
-⸻
+## Project Structure
 
-Tech Stack
-	•	HTML, CSS, JavaScript
-	•	Custom CSS for layout, theming, and animations
-	•	IntersectionObserver for scroll-based animations
-	•	LocalStorage for theme preference persistence
+```
+index.html              Page markup + section containers
+resume/index.html       /resume route — fires analytics event, redirects to the PDF
+styles/terminal.css     All styling, animations, and responsive rules
+scripts/terminal.js     Boot sequence, audio engine, matrix rain, GSAP, rendering
+scripts/data/content.js Single source of truth for all page content
+assets/                 Profile image + resume PDF
+docs/site-plan.md       Design & architecture reference
+vercel.json             Deploy config (framework: none)
+```
 
-	
+## Editing Content
+
+All experience, projects, tech stack, facts, stats, and contact links live in
+`scripts/data/content.js`. Edit that file to update the site — the markup in
+`index.html` is rendered from it at runtime.
+
+## Running Locally
+
+Any static server works, e.g.:
+
+```bash
+python3 -m http.server 8000
+```
+
+Then open <http://localhost:8000>. (Opening `index.html` directly also works,
+though a server is recommended so ES module imports load cleanly.)
+
+## Deployment
+
+Pushed to Vercel as a static site (`vercel.json` sets `framework: null`). No
+build command — files are served as-is.

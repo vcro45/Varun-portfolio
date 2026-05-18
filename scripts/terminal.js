@@ -290,13 +290,7 @@ const SoundSystem = {
     
     osc.start();
     osc.stop(this.audioContext.currentTime + 0.05);
-  },
-  
-  // Keep these empty - no need for scroll/boot/decrypt sounds
-  playScroll() {},
-  playBoot() {},
-  playSuccess() {},
-  playDecrypt() {}
+  }
 };
 
 // ===================== BOOT SEQUENCE =====================
@@ -318,7 +312,6 @@ const initBootSequence = () => {
       const delay = parseInt(line.dataset.delay) || i * 250;
       setTimeout(() => {
         line.classList.add('visible');
-        SoundSystem.playBoot();
       }, delay);
     });
     
@@ -335,7 +328,6 @@ const initBootSequence = () => {
       } else {
         // Boot complete
         setTimeout(() => {
-          SoundSystem.playSuccess();
           bootScreen.classList.add('hidden');
           document.body.classList.remove('loading');
           resolve();
@@ -353,7 +345,6 @@ const initBootSequence = () => {
       bootLines.forEach(line => line.classList.add('visible'));
       
       setTimeout(() => {
-        SoundSystem.playSuccess();
         bootScreen.classList.add('hidden');
         document.body.classList.remove('loading');
         resolve();
@@ -376,7 +367,6 @@ const initScrollProgress = () => {
   
   if (!progressFill) return;
   
-  let lastScroll = 0;
   let ticking = false;
   let currentSection = 'init_varun.exe';
   
@@ -421,13 +411,7 @@ const initScrollProgress = () => {
     
     progressFill.style.width = `${scrollPercent}%`;
     percentText.textContent = `${scrollPercent}%`;
-    
-    // Play subtle scroll sound occasionally
-    if (Math.abs(scrollPercent - lastScroll) > 3) {
-      SoundSystem.playScroll();
-      lastScroll = scrollPercent;
-    }
-    
+
     ticking = false;
   };
   
@@ -483,16 +467,9 @@ const initDecryptEffect = () => {
     card.addEventListener('mouseenter', () => {
       if (hasPlayed) return;
       hasPlayed = true;
-      
-      SoundSystem.playDecrypt();
-      card.classList.add('decrypting');
-      
+
       scrambleText(title, originalTitle, 400);
       scrambleText(description, originalDesc, 600);
-      
-      setTimeout(() => {
-        card.classList.remove('decrypting');
-      }, 600);
     });
   });
 };
@@ -967,7 +944,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initSmoothScroll();
   initMagneticButtons();
   initTaglineAnimation();
-  initHeroImageGlitch();
+  initHeroImage();
   
   // GSAP animations (wait for content to be in DOM)
   setTimeout(() => {
@@ -977,24 +954,78 @@ document.addEventListener('DOMContentLoaded', async () => {
   }, 100);
 });
 
-// ===================== HERO IMAGE GLITCH =====================
-const initHeroImageGlitch = () => {
-  const imageGlitch = qs('.hero-image-glitch');
-  if (!imageGlitch) return;
-  
-  let hasGlitched = false;
-  
-  imageGlitch.addEventListener('mouseenter', () => {
-    if (hasGlitched) return;
-    hasGlitched = true;
-    
-    // Add glitching class to trigger animation
-    imageGlitch.classList.add('glitching');
+// ===================== HERO IMAGE: 3D DEPTH TILT + GLITCH-DECRYPT =====================
+const initHeroImage = () => {
+  const wrapper = qs('.hero-image-wrapper');
+  const glitch = qs('.hero-image-glitch');
+  const depth = qs('.hero-image-depth');
+  if (!wrapper || !glitch) return;
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let live = false;
+  let raf = null;
+  let decryptT = null;
+  let targetRx = 0, targetRy = 0; // target rotation (deg)
+  let rx = 0, ry = 0;             // eased rotation (deg)
+
+  const tick = () => {
+    rx += (targetRx - rx) * 0.14;
+    ry += (targetRy - ry) * 0.14;
+    glitch.style.setProperty('--rx', `${rx.toFixed(2)}deg`);
+    glitch.style.setProperty('--ry', `${ry.toFixed(2)}deg`);
+    if (depth) {
+      // Parallax: the soft echo drifts opposite the tilt for real depth.
+      depth.style.transform =
+        `translate(${(-ry * 1.4).toFixed(2)}px, ${(rx * 1.4).toFixed(2)}px) scale(1.06)`;
+    }
+    const settled = Math.abs(targetRx - rx) < 0.02 && Math.abs(targetRy - ry) < 0.02;
+    if (!settled || live) {
+      raf = requestAnimationFrame(tick);
+    } else {
+      glitch.style.setProperty('--rx', '0deg');
+      glitch.style.setProperty('--ry', '0deg');
+      raf = null;
+    }
+  };
+  const run = () => { if (!raf) raf = requestAnimationFrame(tick); };
+
+  wrapper.addEventListener('mousemove', (e) => {
+    if (reduced) return;
+    const r = wrapper.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    targetRy = -px * 24;
+    targetRx = py * 20;
+    glitch.style.setProperty('--mx', `${(px + 0.5) * 100}%`);
+    glitch.style.setProperty('--my', `${(py + 0.5) * 100}%`);
+    run();
+  });
+
+  wrapper.addEventListener('mouseenter', () => {
+    live = true;
+    wrapper.classList.add('live');
+
+    // Violent RGB-split burst, then decrypt into colour with a scanline wipe.
+    glitch.classList.add('glitching');
+    setTimeout(() => glitch.classList.remove('glitching'), 450);
     SoundSystem.playClick();
-    
-    // Remove class after animation completes (0.45s = 0.15s × 3 iterations)
-    setTimeout(() => {
-      imageGlitch.classList.remove('glitching');
-    }, 500);
+
+    clearTimeout(decryptT);
+    decryptT = setTimeout(() => {
+      wrapper.classList.add('decrypting');
+    }, reduced ? 0 : 200);
+
+    run();
+  });
+
+  wrapper.addEventListener('mouseleave', () => {
+    live = false;
+    clearTimeout(decryptT);
+    wrapper.classList.remove('live');
+    wrapper.classList.remove('decrypting');
+    glitch.classList.remove('glitching');
+    targetRx = 0;
+    targetRy = 0;
+    run();
   });
 };

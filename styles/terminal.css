@@ -476,56 +476,6 @@ p {
   z-index: 2;
 }
 
-/* ===================== LIQUID GLASS MIXIN ===================== */
-.glass-card {
-  background: linear-gradient(
-    135deg,
-    rgba(0, 40, 0, 0.4) 0%,
-    rgba(0, 20, 0, 0.2) 50%,
-    rgba(0, 40, 0, 0.3) 100%
-  );
-  backdrop-filter: blur(20px) saturate(150%);
-  -webkit-backdrop-filter: blur(20px) saturate(150%);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 var(--glass-highlight),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
-  position: relative;
-  overflow: hidden;
-  transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
-  transform-style: preserve-3d;
-  perspective: 1000px;
-}
-
-.glass-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(0, 255, 65, 0.1) 0%,
-    transparent 50%
-  );
-  opacity: 0;
-  transition: opacity 300ms ease;
-  pointer-events: none;
-}
-
-.glass-card:hover::before {
-  opacity: 1;
-}
-
-.glass-card:hover {
-  border-color: var(--border-bright);
-  box-shadow: 
-    0 20px 60px rgba(0, 255, 65, 0.15),
-    0 8px 32px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 var(--glass-highlight);
-  transform: translateY(-4px) rotateX(2deg);
-}
-
 /* ===================== NAVIGATION ===================== */
 .nav {
   display: flex;
@@ -664,6 +614,8 @@ p {
   position: relative;
   width: 320px;
   height: 320px;
+  perspective: 1100px;
+  transform-style: preserve-3d;
 }
 
 .hero-image-glitch {
@@ -672,6 +624,16 @@ p {
   height: 100%;
   border-radius: 20px;
   overflow: hidden;
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(var(--tz, 0px));
+  transition: box-shadow 0.5s ease;
+  will-change: transform;
+}
+
+.hero-image-wrapper.live .hero-image-glitch {
+  --tz: 50px;
+  box-shadow:
+    0 30px 70px rgba(0, 0, 0, 0.55),
+    0 0 60px rgba(0, 255, 120, 0.22);
 }
 
 .hero-image {
@@ -679,14 +641,12 @@ p {
   height: 100%;
   object-fit: cover;
   filter: grayscale(100%) contrast(1.1);
-  transition: filter 0.5s ease;
+  transition: filter 0.6s ease, transform 0.6s ease;
   position: relative;
   z-index: 1;
 }
 
-.hero-image-wrapper:hover .hero-image {
-  filter: grayscale(60%) contrast(1.2);
-}
+/* The base photo stays grayscale; colour arrives via the decrypt reveal. */
 
 /* Glitch color layers - GREEN themed */
 .glitch-layer {
@@ -697,6 +657,7 @@ p {
   background-position: center;
   opacity: 0;
   pointer-events: none;
+  z-index: 3;
 }
 
 .hero-image-glitch.glitching .glitch-layer {
@@ -756,7 +717,7 @@ p {
   transition: opacity 0.3s ease;
 }
 
-.hero-image-wrapper:hover .hero-image-particles {
+.hero-image-wrapper.live .hero-image-particles {
   opacity: 1;
 }
 
@@ -829,75 +790,110 @@ p {
   opacity: 0.5;
 }
 
-/* Glow effect */
-.hero-image-glow {
+/* ---- Glitch-decrypt: full-colour copy revealed by a top→bottom wipe ---- */
+.hero-image-reveal {
   position: absolute;
-  inset: -20px;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(0, 255, 65, 0.15) 0%,
-    rgba(0, 255, 65, 0.05) 40%,
-    transparent 70%
+  inset: 0;
+  z-index: 2;
+  background: url('../assets/vprofile.jpg') center / cover no-repeat;
+  filter: contrast(1.06) saturate(1.32) brightness(1.04);
+  /* Hidden: clipped to zero height from the top. */
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 0.7s cubic-bezier(0.7, 0, 0.25, 1);
+  will-change: clip-path;
+  pointer-events: none;
+}
+
+.hero-image-wrapper.decrypting .hero-image-reveal {
+  clip-path: inset(0 0 0 0);
+}
+
+/* Bright scan line that rides the wipe edge top→bottom */
+.hero-image-scanbar {
+  position: absolute;
+  left: -4%;
+  right: -4%;
+  top: 0;
+  height: 5px;
+  z-index: 4;
+  opacity: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--green) 20%,
+    var(--green-bright) 50%,
+    var(--green) 80%,
+    transparent
   );
+  box-shadow:
+    0 0 14px var(--green),
+    0 0 28px var(--green-glow);
+}
+
+.hero-image-wrapper.decrypting .hero-image-scanbar {
+  animation: scanWipe 0.7s cubic-bezier(0.7, 0, 0.25, 1) forwards;
+}
+
+@keyframes scanWipe {
+  0% { top: 0; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* ---- Photo-colored depth echo (replaces the boxy green halo) ---- */
+.hero-image-depth {
+  position: absolute;
+  inset: -12%;
+  border-radius: 40px;
+  background: url('../assets/vprofile.jpg') center / cover no-repeat;
+  filter: blur(26px) saturate(1.5);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.hero-image-wrapper.live .hero-image-depth {
+  opacity: 0.6;
+}
+
+/* ---- Specular sheen that tracks the pointer ---- */
+.hero-image-sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.5s ease;
-  animation: glowPulse 3s ease-in-out infinite;
-}
-
-.hero-image-wrapper:hover .hero-image-glow {
-  opacity: 1;
-}
-
-@keyframes glowPulse {
-  0%, 100% { transform: scale(1); opacity: 0.5; }
-  50% { transform: scale(1.05); opacity: 0.8; }
-}
-
-/* Border with gradient */
-.hero-image-glitch::before {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  border-radius: 22px;
-  background: linear-gradient(
-    135deg,
-    var(--green) 0%,
-    transparent 40%,
-    transparent 60%,
-    var(--green-dim) 100%
+  transition: opacity 0.4s ease;
+  background: radial-gradient(
+    220px 220px at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(0, 255, 120, 0.10) 35%,
+    transparent 65%
   );
-  z-index: -1;
-  opacity: 0.6;
-  transition: opacity 0.3s ease;
+  mix-blend-mode: screen;
+  z-index: 5;
 }
 
-.hero-image-wrapper:hover .hero-image-glitch::before {
+.hero-image-wrapper.live .hero-image-sheen {
   opacity: 1;
-  animation: borderGlow 1s ease-in-out infinite alternate;
 }
 
-@keyframes borderGlow {
-  0% { filter: drop-shadow(0 0 5px var(--green-glow)); }
-  100% { filter: drop-shadow(0 0 15px var(--green-glow)); }
-}
-
-/* Dispersion edge effect - fades into background */
+/* Soft vignette so the frame dissolves instead of reading as a hard box */
 .hero-image-glitch::after {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: 20px;
-  background: linear-gradient(
-    135deg,
-    transparent 0%,
-    transparent 50%,
-    rgba(5, 5, 5, 0.3) 70%,
-    rgba(5, 5, 5, 0.6) 85%,
-    rgba(5, 5, 5, 0.9) 100%
+  background: radial-gradient(
+    125% 125% at 50% 45%,
+    transparent 55%,
+    rgba(5, 5, 5, 0.55) 100%
   );
   pointer-events: none;
-  z-index: 2;
+  z-index: 6;
 }
 
 /* Image label */
@@ -1417,40 +1413,6 @@ p {
   margin-top: auto;
 }
 
-/* Decrypt effect for project cards */
-.project-card .decrypt-text {
-  position: relative;
-}
-
-.project-card.decrypting .decrypt-text {
-  animation: glitchText 0.1s steps(2) infinite;
-}
-
-@keyframes glitchText {
-  0% { opacity: 1; }
-  50% { opacity: 0.8; }
-  100% { opacity: 1; }
-}
-
-.project-card .decrypt-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.9);
-  color: var(--green);
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-}
-
-.project-card.decrypting .decrypt-overlay {
-  opacity: 1;
-}
-
 /* ===================== TECH STACK ===================== */
 .stack-pillar-grid {
   display: grid;
@@ -1732,17 +1694,6 @@ body.cursor-hidden button {
   border-color: var(--green-bright);
 }
 
-/* ===================== SCROLL REVEAL ===================== */
-.reveal {
-  opacity: 0;
-  transform: translateY(40px);
-}
-
-.reveal.active {
-  opacity: 1;
-  transform: translateY(0);
-}
-
 /* ===================== RESPONSIVE ===================== */
 @media (max-width: 768px) {
   .page-shell {
@@ -1874,7 +1825,7 @@ body.cursor-hidden button {
   }
   
   /* Stack Cards */
-  .stack-columns {
+  .stack-pillar-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
   }
@@ -1978,7 +1929,7 @@ body.cursor-hidden button {
     height: 150px;
   }
   
-  .stack-columns {
+  .stack-pillar-grid {
     grid-template-columns: 1fr;
   }
   
